@@ -1,6 +1,7 @@
 package com.kcsl.ddresolver;
 
 import com.ensoftcorp.atlas.core.db.graph.Node;
+import com.ensoftcorp.atlas.core.db.set.AtlasHashSet;
 import com.ensoftcorp.atlas.core.db.set.AtlasSet;
 import com.ensoftcorp.atlas.core.query.Attr;
 import com.ensoftcorp.atlas.core.query.Q;
@@ -15,12 +16,12 @@ import com.ensoftcorp.open.java.commons.analysis.SetDefinitions;
 
 public class Resolver {
 
-	public static long resolveCHA(){
+	public static AtlasSet<Node> resolveCHA(){
 		return resolveCHA(SetDefinitions.app());
 	}
 	
-	public static long resolveCHA(Q context){
-		long resolvableCallsites = 0;
+	public static AtlasSet<Node> resolveCHA(Q context){
+		AtlasSet<Node> resolvableCallsites = new AtlasHashSet<Node>();
 		
 		Q candidates = context.nodes(XCSG.Method).difference(
 				context.nodesTaggedWithAny(XCSG.Constructor, XCSG.privateVisibility, Attr.Node.IS_STATIC),
@@ -31,7 +32,7 @@ public class Resolver {
 		for(Node callsite : candidateCallsites.eval().nodes()){
 			AtlasSet<Node> callsiteTargets = CallSiteAnalysis.getTargetMethods(callsite);
 			if(callsiteTargets.size() == 1){
-				resolvableCallsites++;
+				resolvableCallsites.add(callsite);
 				
 //				Q identityPassedToEdges = Common.edges(XCSG.IdentityPassedTo);
 //				Q typeOfEdges = Common.edges(XCSG.TypeOf);
@@ -45,12 +46,12 @@ public class Resolver {
 		return resolvableCallsites;
 	}
 	
-	public static long resolveRTA(){
-		return resolveCHA(SetDefinitions.app());
+	public static AtlasSet<Node> resolveRTA(){
+		return resolveRTA(SetDefinitions.app());
 	}
 	
-	public static long resolveRTA(Q context){
-		long resolvableCallsites = 0;
+	public static AtlasSet<Node> resolveRTA(Q context){
+		AtlasSet<Node> resolvableCallsites = new AtlasHashSet<Node>();
 		
 		Q candidates = context.nodes(XCSG.Method).difference(
 				context.nodesTaggedWithAny(XCSG.Constructor, XCSG.privateVisibility, Attr.Node.IS_STATIC),
@@ -62,19 +63,67 @@ public class Resolver {
 			Q rtaPerControlFlowEdges = Common.universe().edges(RapidTypeAnalysis.PER_CONTROL_FLOW);
 			Q targetMethods = rtaPerControlFlowEdges.successors(Common.toQ(callsite));
 			if(targetMethods.eval().nodes().size() == 1){
-				resolvableCallsites++;
+				resolvableCallsites.add(callsite);
 			}
 		}
 
 		return resolvableCallsites;
 	}
 	
-	public static long resolveXTA(){
-		return resolveCHA(SetDefinitions.app());
+//	public static long resolveXTA(){
+//		return resolveXTA(SetDefinitions.app());
+//	}
+//	
+//	public static long resolveXTA(Q context){
+//		long resolvableCallsites = 0;
+//		
+//		Q candidates = context.nodes(XCSG.Method).difference(
+//				context.nodesTaggedWithAny(XCSG.Constructor, XCSG.privateVisibility, Attr.Node.IS_STATIC),
+//				context.methods("<init>"), context.methods("<clinit>"));
+//
+//		Q candidateCallsites = CallSiteAnalysis.getMethodCallSites(candidates);
+//		
+//		for(Node callsite : candidateCallsites.eval().nodes()){
+//			Q xtaPerControlFlowEdges = Common.universe().edges(ClassicHybridTypeAnalysis.PER_CONTROL_FLOW);
+//			Q targetMethods = xtaPerControlFlowEdges.successors(Common.toQ(callsite));
+//			if(targetMethods.eval().nodes().size() == 1){
+//				resolvableCallsites++;
+//			}
+//		}
+//
+//		return resolvableCallsites;
+//	}
+//	
+//	public static long resolveXTA2(){
+//		return resolveXTA2(SetDefinitions.app());
+//	}
+//	
+//	public static long resolveXTA2(Q context){
+//		long resolvableCallsites = 0;
+//		
+//		Q candidates = context.nodes(XCSG.Method).difference(
+//				context.nodesTaggedWithAny(XCSG.Constructor, XCSG.privateVisibility, Attr.Node.IS_STATIC),
+//				context.methods("<init>"), context.methods("<clinit>"));
+//
+//		Q candidateCallsites = CallSiteAnalysis.getMethodCallSites(candidates);
+//		
+//		for(Node callsite : candidateCallsites.eval().nodes()){
+//			Q xtaPerControlFlowEdges = Common.universe().edges(HybridTypeAnalysis.PER_CONTROL_FLOW);
+//			Q targetMethods = xtaPerControlFlowEdges.successors(Common.toQ(callsite));
+//			if(targetMethods.eval().nodes().size() == 1){
+//				resolvableCallsites++;
+//			}
+//		}
+//
+//		return resolvableCallsites;
+//	}
+	
+	public static AtlasSet<Node> resolve0CFA(){
+		return resolve0CFA(SetDefinitions.app());
 	}
 	
-	public static long resolveXTA(Q context){
-		long resolvableCallsites = 0;
+	public static AtlasSet<Node> resolve0CFA(Q context){
+		AtlasSet<Node> resolvableCallsites = new AtlasHashSet<Node>();
 		
 		Q candidates = context.nodes(XCSG.Method).difference(
 				context.nodesTaggedWithAny(XCSG.Constructor, XCSG.privateVisibility, Attr.Node.IS_STATIC),
@@ -83,58 +132,10 @@ public class Resolver {
 		Q candidateCallsites = CallSiteAnalysis.getMethodCallSites(candidates);
 		
 		for(Node callsite : candidateCallsites.eval().nodes()){
-			Q xtaPerControlFlowEdges = Common.universe().edges(ClassicHybridTypeAnalysis.PER_CONTROL_FLOW);
-			Q targetMethods = xtaPerControlFlowEdges.successors(Common.toQ(callsite));
+			Q zeroCFAPerControlFlowEdges = Common.universe().edges(ZeroControlFlowAnalysis.PER_CONTROL_FLOW);
+			Q targetMethods = zeroCFAPerControlFlowEdges.successors(Common.toQ(callsite));
 			if(targetMethods.eval().nodes().size() == 1){
-				resolvableCallsites++;
-			}
-		}
-
-		return resolvableCallsites;
-	}
-	
-	public static long resolveXTA2(){
-		return resolveCHA(SetDefinitions.app());
-	}
-	
-	public static long resolveXTA2(Q context){
-		long resolvableCallsites = 0;
-		
-		Q candidates = context.nodes(XCSG.Method).difference(
-				context.nodesTaggedWithAny(XCSG.Constructor, XCSG.privateVisibility, Attr.Node.IS_STATIC),
-				context.methods("<init>"), context.methods("<clinit>"));
-
-		Q candidateCallsites = CallSiteAnalysis.getMethodCallSites(candidates);
-		
-		for(Node callsite : candidateCallsites.eval().nodes()){
-			Q xtaPerControlFlowEdges = Common.universe().edges(HybridTypeAnalysis.PER_CONTROL_FLOW);
-			Q targetMethods = xtaPerControlFlowEdges.successors(Common.toQ(callsite));
-			if(targetMethods.eval().nodes().size() == 1){
-				resolvableCallsites++;
-			}
-		}
-
-		return resolvableCallsites;
-	}
-	
-	public static long resolve0CFA(){
-		return resolveCHA(SetDefinitions.app());
-	}
-	
-	public static long resolve0CFA(Q context){
-		long resolvableCallsites = 0;
-		
-		Q candidates = context.nodes(XCSG.Method).difference(
-				context.nodesTaggedWithAny(XCSG.Constructor, XCSG.privateVisibility, Attr.Node.IS_STATIC),
-				context.methods("<init>"), context.methods("<clinit>"));
-
-		Q candidateCallsites = CallSiteAnalysis.getMethodCallSites(candidates);
-		
-		for(Node callsite : candidateCallsites.eval().nodes()){
-			Q xtaPerControlFlowEdges = Common.universe().edges(ZeroControlFlowAnalysis.PER_CONTROL_FLOW);
-			Q targetMethods = xtaPerControlFlowEdges.successors(Common.toQ(callsite));
-			if(targetMethods.eval().nodes().size() == 1){
-				resolvableCallsites++;
+				resolvableCallsites.add(callsite);
 			}
 		}
 
