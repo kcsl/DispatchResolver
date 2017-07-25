@@ -7,9 +7,8 @@ import com.ensoftcorp.atlas.core.query.Attr;
 import com.ensoftcorp.atlas.core.query.Q;
 import com.ensoftcorp.atlas.core.xcsg.XCSG;
 import com.ensoftcorp.atlas.java.core.script.Common;
-import com.ensoftcorp.open.cg.analysis.ClassicHybridTypeAnalysis;
-import com.ensoftcorp.open.cg.analysis.HybridTypeAnalysis;
 import com.ensoftcorp.open.cg.analysis.RapidTypeAnalysis;
+import com.ensoftcorp.open.cg.analysis.ReallyRapidTypeAnalysis;
 import com.ensoftcorp.open.cg.analysis.ZeroControlFlowAnalysis;
 import com.ensoftcorp.open.java.commons.analysis.CallSiteAnalysis;
 import com.ensoftcorp.open.java.commons.analysis.SetDefinitions;
@@ -40,6 +39,30 @@ public class Resolver {
 //				Q identityPassedType = typeOfEdges.successors(identityPassed);
 				
 //				write: <identityPassedType>.callsite(ref, <params>)
+			}
+		}
+
+		return resolvableCallsites;
+	}
+	
+	public static AtlasSet<Node> resolveRRTA(){
+		return resolveRRTA(SetDefinitions.app());
+	}
+	
+	public static AtlasSet<Node> resolveRRTA(Q context){
+		AtlasSet<Node> resolvableCallsites = new AtlasHashSet<Node>();
+		
+		Q candidates = context.nodes(XCSG.Method).difference(
+				context.nodesTaggedWithAny(XCSG.Constructor, XCSG.privateVisibility, Attr.Node.IS_STATIC),
+				context.methods("<init>"), context.methods("<clinit>"));
+
+		Q candidateCallsites = CallSiteAnalysis.getMethodCallSites(candidates);
+		
+		for(Node callsite : candidateCallsites.eval().nodes()){
+			Q rtaPerControlFlowEdges = Common.universe().edges(ReallyRapidTypeAnalysis.PER_CONTROL_FLOW);
+			Q targetMethods = rtaPerControlFlowEdges.successors(Common.toQ(callsite));
+			if(targetMethods.eval().nodes().size() == 1){
+				resolvableCallsites.add(callsite);
 			}
 		}
 
