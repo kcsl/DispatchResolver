@@ -150,9 +150,9 @@ public class Resolver {
 		fw.write(callsitesInLoops.eval().nodes().size() + ",");
 		fw.write(callsitesOutsideLoops.eval().nodes().size() + ",");
 		
-		fw.write("?," + chaCG.eval().nodes().size() + "," + chaCG.eval().edges().size() + "," + chaRewrite.eval().nodes().size() + "," + chaClone.eval().nodes().size() + "," + chaUnchanged.eval().nodes().size() + "," + chaShouldBeStatic.eval().nodes().size() + ",");
-		fw.write("?," + rrtaCG.eval().nodes().size() + "," + rrtaCG.eval().edges().size() + "," + rrtaRewrite.eval().nodes().size() + "," + rrtaClone.eval().nodes().size() + "," + rrtaUnchanged.eval().nodes().size() + "," + rrtaShouldBeStatic.eval().nodes().size() +",");
-		fw.write("?," + zerocfaCG.eval().nodes().size() + "," + zerocfaCG.eval().edges().size() + "," + zerocfaRewrite.eval().nodes().size() + "," + zerocfaClone.eval().nodes().size() + "," + zerocfaUnchanged.eval().nodes().size()+ "," + zerocfaShouldBeStatic.eval().nodes().size() + ",");
+		fw.write("?," + chaCG.retainEdges().eval().nodes().size() + "," + chaCG.eval().edges().size() + "," + chaRewrite.eval().nodes().size() + "," + chaClone.eval().nodes().size() + "," + chaUnchanged.eval().nodes().size() + "," + chaShouldBeStatic.eval().nodes().size() + ",");
+		fw.write("?," + rrtaCG.retainEdges().eval().nodes().size() + "," + rrtaCG.eval().edges().size() + "," + rrtaRewrite.eval().nodes().size() + "," + rrtaClone.eval().nodes().size() + "," + rrtaUnchanged.eval().nodes().size() + "," + rrtaShouldBeStatic.eval().nodes().size() +",");
+		fw.write("?," + zerocfaCG.retainEdges().eval().nodes().size() + "," + zerocfaCG.eval().edges().size() + "," + zerocfaRewrite.eval().nodes().size() + "," + zerocfaClone.eval().nodes().size() + "," + zerocfaUnchanged.eval().nodes().size()+ "," + zerocfaShouldBeStatic.eval().nodes().size() + ",");
 		
 		fw.write(CHA.eval().nodes().size() + ",");
 		fw.write(RRTA.eval().nodes().size() + ",");
