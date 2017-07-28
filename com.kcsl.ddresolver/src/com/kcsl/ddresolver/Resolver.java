@@ -124,19 +124,19 @@ public class Resolver {
 		Q CHA = Common.universe().nodes("CHA-TRANSFORMABLE").difference(Common.universe().nodes("RRTA-TRANSFORMABLE", "0CFA-TRANSFORMABLE"));
 		Q RRTA = Common.universe().nodes("RRTA-TRANSFORMABLE").difference(Common.universe().nodes("CHA-TRANSFORMABLE", "0CFA-TRANSFORMABLE"));
 		Q CFA = Common.universe().nodes("0CFA-TRANSFORMABLE").difference(Common.universe().nodes("CHA-TRANSFORMABLE", "RRTA-TRANSFORMABLE"));
-		Q CHARRTA = Common.universe().nodes("CHA-TRANSFORMABLE", "RRTA-TRANSFORMABLE").difference(Common.universe().nodes("0CFA-TRANSFORMABLE"));
-		Q CHA0CFA = Common.universe().nodes("CHA-TRANSFORMABLE", "0CFA-TRANSFORMABLE").difference(Common.universe().nodes("RRTA-TRANSFORMABLE"));
-		Q RRTA0CFA = Common.universe().nodes("RRTA-TRANSFORMABLE", "0CFA-TRANSFORMABLE").difference(Common.universe().nodes("CHA-TRANSFORMABLE"));
-		Q CHARRTA0CFA = Common.universe().nodes("RRTA-TRANSFORMABLE", "0CFA-TRANSFORMABLE", "CHA-TRANSFORMABLE");
+		Q CHARRTA = Common.universe().nodesTaggedWithAll("CHA-TRANSFORMABLE", "RRTA-TRANSFORMABLE").difference(Common.universe().nodes("0CFA-TRANSFORMABLE"));
+		Q CHA0CFA = Common.universe().nodesTaggedWithAll("CHA-TRANSFORMABLE", "0CFA-TRANSFORMABLE").difference(Common.universe().nodes("RRTA-TRANSFORMABLE"));
+		Q RRTA0CFA = Common.universe().nodesTaggedWithAll("RRTA-TRANSFORMABLE", "0CFA-TRANSFORMABLE").difference(Common.universe().nodes("CHA-TRANSFORMABLE"));
+		Q CHARRTA0CFA = Common.universe().nodesTaggedWithAll("RRTA-TRANSFORMABLE", "0CFA-TRANSFORMABLE", "CHA-TRANSFORMABLE");
 		
 		// callsite venn with one target breakdown by algorithm
 		Q c1CHA = Common.universe().nodes("CHA-CALLSITETRANSFORMABLE").difference(Common.universe().nodes("RRTA-CALLSITETRANSFORMABLE", "0CFA-CALLSITETRANSFORMABLE"));
 		Q c1RRTA = Common.universe().nodes("RRTA-CALLSITETRANSFORMABLE").difference(Common.universe().nodes("CHA-CALLSITETRANSFORMABLE", "0CFA-CALLSITETRANSFORMABLE"));
 		Q c10CFA = Common.universe().nodes("0CFA-CALLSITETRANSFORMABLE").difference(Common.universe().nodes("CHA-CALLSITETRANSFORMABLE", "RRTA-CALLSITETRANSFORMABLE"));
-		Q c1CHAc1RRTA = Common.universe().nodes("CHA-CALLSITETRANSFORMABLE", "RRTA-CALLSITETRANSFORMABLE").difference(Common.universe().nodes("0CFA-CALLSITETRANSFORMABLE"));
-		Q c1CHAc10CFA = Common.universe().nodes("CHA-CALLSITETRANSFORMABLE", "0CFA-CALLSITETRANSFORMABLE").difference(Common.universe().nodes("RRTA-CALLSITETRANSFORMABLE"));
-		Q c1RRTAc10CFA = Common.universe().nodes("RRTA-CALLSITETRANSFORMABLE", "0CFA-CALLSITETRANSFORMABLE").difference(Common.universe().nodes("CHA-CALLSITETRANSFORMABLE"));
-		Q c1CHAc1RRTAc10CFA = Common.universe().nodes("RRTA-CALLSITETRANSFORMABLE", "0CFA-CALLSITETRANSFORMABLE", "CHA-CALLSITETRANSFORMABLE");
+		Q c1CHAc1RRTA = Common.universe().nodesTaggedWithAll("CHA-CALLSITETRANSFORMABLE", "RRTA-CALLSITETRANSFORMABLE").difference(Common.universe().nodes("0CFA-CALLSITETRANSFORMABLE"));
+		Q c1CHAc10CFA = Common.universe().nodesTaggedWithAll("CHA-CALLSITETRANSFORMABLE", "0CFA-CALLSITETRANSFORMABLE").difference(Common.universe().nodes("RRTA-CALLSITETRANSFORMABLE"));
+		Q c1RRTAc10CFA = Common.universe().nodesTaggedWithAll("RRTA-CALLSITETRANSFORMABLE", "0CFA-CALLSITETRANSFORMABLE").difference(Common.universe().nodes("CHA-CALLSITETRANSFORMABLE"));
+		Q c1CHAc1RRTAc10CFA = Common.universe().nodesTaggedWithAll("RRTA-CALLSITETRANSFORMABLE", "0CFA-CALLSITETRANSFORMABLE", "CHA-CALLSITETRANSFORMABLE");
 
 		Q ctlCHA = Common.universe().nodes("CHA-CALLSITETRANSFORMABLE").intersection(callsitesInLoops);
 		Q ctlRRTA = Common.universe().nodes("RRTA-CALLSITETRANSFORMABLE").intersection(callsitesInLoops);
