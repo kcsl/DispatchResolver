@@ -188,6 +188,8 @@ public class Resolver {
 		fw.write(ctl0CFA.eval().nodes().size() + "\n");
 		
 		fw.close();
+		Log.info("Finished collecting transformation metrics for "+projectName);
+
 	}
 
 	public static void tagShouldBeStaticMethodsCHA(Q candidateMethods){
