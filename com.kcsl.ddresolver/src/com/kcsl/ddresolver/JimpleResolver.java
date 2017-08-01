@@ -8,6 +8,7 @@ import java.util.HashMap;
 import com.ensoftcorp.atlas.core.db.graph.Node;
 import com.ensoftcorp.atlas.core.db.set.AtlasHashSet;
 import com.ensoftcorp.atlas.core.db.set.AtlasSet;
+import com.ensoftcorp.atlas.core.log.Log;
 import com.ensoftcorp.atlas.core.query.Attr;
 import com.ensoftcorp.atlas.core.query.Q;
 import com.ensoftcorp.atlas.core.xcsg.XCSG;
@@ -37,6 +38,10 @@ public class JimpleResolver {
 	}
 	
 	public static void collectMetrics(File output) throws IOException, InvalidFilterParameterException{
+		String projectName = Common.universe().nodes(XCSG.Project).eval().nodes().one().getAttr(XCSG.name).toString();
+		Log.info("Starting to collect transformation metrics for "+projectName);
+		long timer = System.currentTimeMillis();
+		
 		FileWriter fw = new FileWriter(output);
 		
 		// overall application statistics
@@ -93,16 +98,24 @@ public class JimpleResolver {
 		Q rrtaCG = ReallyRapidTypeAnalysis.getInstance(false).getCallGraph();
 		Q zerocfaCG = ZeroControlFlowAnalysis.getInstance(false).getCallGraph();
 		
+		timer = System.currentTimeMillis();
 		// run tagging operations
 		tagShouldBeStaticMethodsCHA(potentiallyTransformableMethods);
-		tagShouldBeStaticMethodsRRTA(potentiallyTransformableMethods);
-		tagShouldBeStaticMethods0CFA(potentiallyTransformableMethods);
 		tagMethodsCHA(potentiallyTransformableMethods);
-		tagMethodsRRTA(potentiallyTransformableMethods);
-		tagMethods0CFA(potentiallyTransformableMethods);
 		tagTransformableCallsitesCHA(potentiallyTransformableMethodCallsites);
+		long chaTime = System.currentTimeMillis() - timer;
+		
+		timer = System.currentTimeMillis();
+		tagShouldBeStaticMethodsRRTA(potentiallyTransformableMethods);
+		tagMethodsRRTA(potentiallyTransformableMethods);
 		tagTransformableCallsitesRRTA(potentiallyTransformableMethodCallsites);
+		long rrtaTime = System.currentTimeMillis() - timer;
+		
+		timer = System.currentTimeMillis();
+		tagShouldBeStaticMethods0CFA(potentiallyTransformableMethods);
+		tagMethods0CFA(potentiallyTransformableMethods);
 		tagTransformableCallsites0CFA(potentiallyTransformableMethodCallsites);
+		long zcfaTime = System.currentTimeMillis() - timer;
 		
 		// transformable method breakdown
 		Q chaRewrite = Common.universe().nodes("CHA-REWRITE");
@@ -150,9 +163,9 @@ public class JimpleResolver {
 		fw.write(callsitesInLoops.eval().nodes().size() + ",");
 		fw.write(callsitesOutsideLoops.eval().nodes().size() + ",");
 		
-		fw.write("?," + chaCG.retainEdges().eval().nodes().size() + "," + chaCG.eval().edges().size() + "," + chaRewrite.eval().nodes().size() + "," + chaClone.eval().nodes().size() + "," + chaUnchanged.eval().nodes().size() + "," + chaShouldBeStatic.eval().nodes().size() + ",");
-		fw.write("?," + rrtaCG.retainEdges().eval().nodes().size() + "," + rrtaCG.eval().edges().size() + "," + rrtaRewrite.eval().nodes().size() + "," + rrtaClone.eval().nodes().size() + "," + rrtaUnchanged.eval().nodes().size() + "," + rrtaShouldBeStatic.eval().nodes().size() +",");
-		fw.write("?," + zerocfaCG.retainEdges().eval().nodes().size() + "," + zerocfaCG.eval().edges().size() + "," + zerocfaRewrite.eval().nodes().size() + "," + zerocfaClone.eval().nodes().size() + "," + zerocfaUnchanged.eval().nodes().size()+ "," + zerocfaShouldBeStatic.eval().nodes().size() + ",");
+		fw.write(chaTime + "," + chaCG.retainEdges().eval().nodes().size() + "," + chaCG.eval().edges().size() + "," + chaRewrite.eval().nodes().size() + "," + chaClone.eval().nodes().size() + "," + chaUnchanged.eval().nodes().size() + "," + chaShouldBeStatic.eval().nodes().size() + ",");
+		fw.write(rrtaTime + "," + rrtaCG.retainEdges().eval().nodes().size() + "," + rrtaCG.eval().edges().size() + "," + rrtaRewrite.eval().nodes().size() + "," + rrtaClone.eval().nodes().size() + "," + rrtaUnchanged.eval().nodes().size() + "," + rrtaShouldBeStatic.eval().nodes().size() +",");
+		fw.write(zcfaTime + "," + zerocfaCG.retainEdges().eval().nodes().size() + "," + zerocfaCG.eval().edges().size() + "," + zerocfaRewrite.eval().nodes().size() + "," + zerocfaClone.eval().nodes().size() + "," + zerocfaUnchanged.eval().nodes().size()+ "," + zerocfaShouldBeStatic.eval().nodes().size() + ",");
 		
 		fw.write(CHA.eval().nodes().size() + ",");
 		fw.write(RRTA.eval().nodes().size() + ",");
